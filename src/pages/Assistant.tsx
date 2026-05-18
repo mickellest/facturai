@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, Mic, MicOff } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -17,6 +17,7 @@ export default function Assistant() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Reemplaza esto con la URL del Webhook de tu flujo de n8n
@@ -77,6 +78,47 @@ export default function Assistant() {
     }
   };
 
+  const toggleListening = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Tu navegador no soporta el reconocimiento de voz. Usa Chrome o Edge.');
+      return;
+    }
+
+    // @ts-ignore
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.lang = 'es-ES';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev + (prev ? ' ' : '') + transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Error de reconocimiento de voz:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
   return (
     <div className="flex flex-col h-full bg-transparent relative animate-in fade-in duration-500">
       {/* Header */}
@@ -131,22 +173,37 @@ export default function Assistant() {
 
       {/* Input Area */}
       <div className="p-6 bg-white/50 backdrop-blur-md border-t border-gray-200/60">
-        <form onSubmit={handleSend} className="max-w-4xl mx-auto relative">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Pregúntale algo a tu asistente..."
-            className="w-full pl-6 pr-16 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-gray-800 text-[15px]"
-            disabled={isLoading}
-          />
+        <form onSubmit={handleSend} className="max-w-4xl mx-auto relative flex items-center gap-2">
           <button
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className="absolute right-2.5 top-2.5 p-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:hover:bg-primary transition-colors shadow-sm"
+            type="button"
+            onClick={toggleListening}
+            className={`p-3.5 rounded-xl transition-all shadow-sm flex-shrink-0 ${
+              isListening 
+                ? 'bg-red-500 text-white animate-pulse' 
+                : 'bg-white border border-gray-200 text-gray-500 hover:text-primary hover:border-primary/50'
+            }`}
+            title="Usar dictado por voz"
           >
-            <Send className="w-5 h-5 ml-0.5" />
+            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
+          
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={isListening ? "Escuchando..." : "Pregúntale algo a tu asistente..."}
+              className="w-full pl-6 pr-16 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-gray-800 text-[15px]"
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="absolute right-2.5 top-2.5 p-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover disabled:opacity-50 disabled:hover:bg-primary transition-colors shadow-sm"
+            >
+              <Send className="w-5 h-5 ml-0.5" />
+            </button>
+          </div>
         </form>
         <p className="text-center text-xs text-gray-400 mt-3">
           El asistente usa Inteligencia Artificial y puede cometer errores. Verifica siempre la información importante.
