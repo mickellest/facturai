@@ -2,7 +2,7 @@
 
 Este es el aplicativo web desarrollado en React (TypeScript) para cumplir con el entregable técnico. Forma parte de un sistema que automatiza la recepción, extracción y gestión de facturas recibidas por correo electrónico.
 
-## 🚀 Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 - **Frontend:** React, TypeScript, Vite
 - **Estilos:** Tailwind CSS v4, Lucide React (Iconos)
@@ -10,7 +10,7 @@ Este es el aplicativo web desarrollado en React (TypeScript) para cumplir con el
 - **Automatización:** n8n (Manejado en un servidor externo)
 - **Despliegue:** Vercel
 
-## ⚙️ Arquitectura del Sistema
+##  Arquitectura del Sistema
 
 El flujo completo del proyecto es el siguiente:
 
@@ -20,14 +20,14 @@ El flujo completo del proyecto es el siguiente:
 4. **Visualización y Gestión (FacturAI App):** El usuario finaliza la validación a través de esta interfaz web, donde puede visualizar, editar y validar cada factura.
 5. **Asistente Inteligente:** Permite hacer consultas en lenguaje natural (texto o voz) sobre las facturas procesadas.
 
-## 📦 Estructura de la Base de Datos
+##  Estructura de la Base de Datos
 
 La base de datos en Supabase cuenta con dos tablas principales:
 
 - `invoices`: Guarda la cabecera de la factura (proveedor, fechas, subtotales, impuestos, total, estado).
 - `invoice_lines`: Guarda el detalle de los productos/servicios cobrados (concepto, cantidad, precio, descuento, total de línea), vinculados por `invoice_id`.
 
-## 🎤 Funcionalidades Clave Cumplidas
+##  Funcionalidades Clave Cumplidas
 
 - **Dashboard:** Panel estadístico en tiempo real de los montos y facturas procesadas.
 - **Manejo Multi-moneda:** Selección global de moneda (Bs, USD, EUR) que actualiza la interfaz sin modificar los datos base.
@@ -35,7 +35,7 @@ La base de datos en Supabase cuenta con dos tablas principales:
 - **Asistente por Voz y Texto:** Integración con la API Web de Reconocimiento de Voz para dictado nativo, conectado al webhook de n8n.
 - **Diseño Premium:** Interfaz responsive, moderna, con micro-animaciones y efectos de cristal (Glassmorphism).
 
-## 🛠️ Instalación y Ejecución Local
+##  Instalación y Ejecución Local
 
 1. Clona este repositorio.
 2. Instala las dependencias:

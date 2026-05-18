@@ -137,16 +137,22 @@ export default function Invoices() {
 
   async function handleValidate() {
     if (!selectedInvoice) return;
+    await handleValidateDirect(selectedInvoice);
+  }
+
+  async function handleValidateDirect(invoice: Invoice) {
     setSaving(true);
     const { error } = await supabase
       .from('invoices')
       .update({ status: 'Validada' })
-      .eq('id', selectedInvoice.id);
+      .eq('id', invoice.id);
       
     if (!error) {
-      const updated = { ...selectedInvoice, status: 'Validada' };
-      setSelectedInvoice(updated);
-      setInvoices(invoices.map(inv => inv.id === updated.id ? updated : inv));
+      const updated = { ...invoice, status: 'Validada' };
+      if (selectedInvoice?.id === invoice.id) {
+        setSelectedInvoice(updated);
+      }
+      setInvoices(prev => prev.map(inv => inv.id === updated.id ? updated : inv));
     }
     setSaving(false);
   }
@@ -197,7 +203,7 @@ export default function Invoices() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -233,13 +239,22 @@ export default function Invoices() {
                       {inv.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center gap-2">
                     <button 
                       onClick={() => handleViewDetails(inv)}
                       className="text-primary hover:text-primary-hover bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium transition-colors"
                     >
-                      <Eye className="w-4 h-4" /> Detalle
+                      <Eye className="w-4 h-4" /> Ver Factura
                     </button>
+                    {inv.status !== 'Validada' && (
+                      <button 
+                        onClick={() => handleValidateDirect(inv)}
+                        disabled={saving}
+                        className="text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-medium transition-colors disabled:opacity-50"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Validar
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))
